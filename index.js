@@ -1,24 +1,29 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const massive = require('massive');
-const controller = require('./server/controllers/auth_controller')
-const PORT = 4444;
+const express = require('express'),
+    bodyParser = require('body-parser'),
+    session = require('express-session'),
+    massive = require('massive'),
+    controller = require('./server/controllers/auth_controller'),
+    PORT = 4444,
+    checkForSession = require('./server/middlewares/checkForSession')
+
+
 
 require('dotenv').config();
 const app = express();
 app.use(bodyParser.json());
-massive( process.env.CONNECTION_STRING ).then( dbInstance => { 
-    
-    app.set('db', dbInstance)});
+massive(process.env.CONNECTION_STRING).then(dbInstance => {
+
+    app.set('db', dbInstance)
+});
+//Middelware
+app.use(checkForSession);
 
 
-
-app.use( session({
+app.use(session({
     secret: 'Can you see me?',
     resave: false,
     saveUninitialized: false
-    
+
 }))
 
 
@@ -27,4 +32,4 @@ app.get('/api/users', controller.getAll)
 
 
 
-app.listen( PORT, () =>  console.log(`Server listening on port ${PORT}.`)  )
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}.`))
